@@ -26,24 +26,4 @@ else
   $EPHEMERAL_HDFS/bin/hadoop namenode -format
 fi
 
-echo "Starting ephemeral HDFS..."
-
-# This is different depending on version.
-case "$HADOOP_MAJOR_VERSION" in
-  1)
-    $EPHEMERAL_HDFS/bin/start-dfs.sh
-    ;;
-  2)
-    $EPHEMERAL_HDFS/sbin/start-dfs.sh
-    ;;
-  yarn) 
-    $EPHEMERAL_HDFS/sbin/start-dfs.sh
-    echo "Starting YARN"
-    $EPHEMERAL_HDFS/sbin/start-yarn.sh
-    ;;
-  *)
-     echo "ERROR: Unknown Hadoop version"
-     return -1
-esac
-
 popd > /dev/null
