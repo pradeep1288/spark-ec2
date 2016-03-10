@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+  <property>
+    <name>io.file.buffer.size</name>
+    <value>65536</value>
+  </property>
+
+  <property>
+    <name>fs.defaultFS</name>
+    <value>nfs://{{nfs_server_address}:2049/</value>
+  </property>
+  <property>
+    <name>fs.AbstractFileSystem.nfs.impl</name>
+    <value>org.apache.hadoop.fs.nfs.NFSv3AbstractFilesystem</value>
+  </property>
+  <property>
+    <name>fs.nfs.impl</name>
+    <value>org.apache.hadoop.fs.nfs.NFSv3FileSystem</value>
+  </property>
+  <property>
+    <name>fs.nfs.configuration</name>
+    <value>/root/nfs-hdfs/conf/nfs-mapping.json</value>
+  </property>
+
+</configuration>

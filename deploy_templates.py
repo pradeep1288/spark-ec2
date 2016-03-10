@@ -78,6 +78,8 @@ template_vars = {
   "system_ram_mb": "%d" % system_ram_mb,
   "aws_access_key_id": os.getenv("AWS_ACCESS_KEY_ID"),
   "aws_secret_access_key": os.getenv("AWS_SECRET_ACCESS_KEY"),
+  "nfs_server_address": os.getenv("NFS_SERVER_ADDRESS"),
+  "nfs_volume_name": os.getenv("NFS_VOLUME_NAME"),
 }
 
 template_dir="/root/spark-ec2/templates"

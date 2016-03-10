@@ -100,7 +100,7 @@ DEFAULT_SPARK_VERSION = SPARK_EC2_VERSION
 DEFAULT_SPARK_GITHUB_REPO = "https://github.com/apache/spark"
 
 # Default location to get the spark-ec2 scripts (and ami-list) from
-DEFAULT_SPARK_EC2_GITHUB_REPO = "https://github.com/amplab/spark-ec2"
+DEFAULT_SPARK_EC2_GITHUB_REPO = "https://github.com/pradeep1288/spark-ec2"
 DEFAULT_SPARK_EC2_BRANCH = "branch-1.5"
 
 
@@ -327,6 +327,12 @@ def parse_args():
     parser.add_option(
         "--instance-profile-name", default=None,
         help="IAM profile name to launch instances under")
+    parser.add_option(
+        "--nfs-server-address", default=None,
+        help="NFS Server IP Address to use with Hadoop NFS Connector")
+    parser.add_option(
+        "--nfs-volume-name", default=None,
+        help="NFS Volume Name to access data")
 
     (opts, args) = parser.parse_args()
     if len(args) != 2:
@@ -807,11 +813,13 @@ def setup_cluster(conn, master_nodes, slave_nodes, opts, deploy_ssh_key):
             ssh_write(slave_address, opts, ['tar', 'x'], dot_ssh_tar)
 
     modules = ['spark', 'ephemeral-hdfs', 'persistent-hdfs',
-               'mapreduce', 'spark-standalone', 'tachyon', 'rstudio']
+               'mapreduce', 'spark-standalone', 'tachyon', 'nfs-hdfs']
 
     if opts.hadoop_major_version == "1":
         modules = list(filter(lambda x: x != "mapreduce", modules))
 
+    if opts.hadoop_major_version == "1":
+        modules = list(filter(lambda x: x != "mapreduce", modules))
     if opts.ganglia:
         modules.append('ganglia')
 
@@ -1077,7 +1085,9 @@ def deploy_files(conn, root_dir, opts, master_nodes, slave_nodes, modules):
         "tachyon_version": tachyon_v,
         "hadoop_major_version": opts.hadoop_major_version,
         "spark_worker_instances": worker_instances_str,
-        "spark_master_opts": opts.master_opts
+        "spark_master_opts": opts.master_opts,
+        "nfs_server_address": opts.nfs_sever_address,
+        "nfs_volume_name":opts.nfs_volume_name
     }
 
     if opts.copy_aws_credentials:
@@ -1127,6 +1137,8 @@ def deploy_files(conn, root_dir, opts, master_nodes, slave_nodes, modules):
 # root_dir should be an absolute path.
 def deploy_user_files(root_dir, opts, master_nodes):
     active_master = get_dns_name(master_nodes[0], opts.private_ips)
+    root_dir_path = "root/"
+    root_dir = root_dir_path  + root_dir
     command = [
         'rsync', '-rv',
         '-e', stringify_command(ssh_command(opts)),

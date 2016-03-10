@@ -1,0 +1,30 @@
+{
+"spaces" : [
+                {
+                        "name": "nfs aws conf",
+                        "uri": "nfs://{{nfs_server_address}}:2049/",
+                        "options": {
+                                "nfsExportPath": "/",
+                                "nfsReadSizeBits": 20,
+                                "nfsWriteSizeBits": 20,
+                                "nfsSplitSizeBits": 30,
+                                "nfsAuthScheme": "AUTH_SYS",
+                                "nfsUsername": "root",
+                                "nfsGroupname": "root",
+                                "nfsUid": 0,
+                                "nfsGid": 0,
+                                "nfsPort": 2049,
+                                "nfsMountPort": -1,
+                                "nfsRpcbindPort": 111
+                        },
+
+                        "endpoints": [
+                                {
+                                        "host":"nfs://{{nfs_server_address}}:2049",
+                                        "path": "{{nfs_volume_name}}"
+                                }
+
+                        ]
+                }
+        ]
+}
