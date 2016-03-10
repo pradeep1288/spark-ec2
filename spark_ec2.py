@@ -1138,12 +1138,11 @@ def deploy_files(conn, root_dir, opts, master_nodes, slave_nodes, modules):
 def deploy_user_files(root_dir, opts, master_nodes):
     active_master = get_dns_name(master_nodes[0], opts.private_ips)
     root_dir_path = "root/"
-    root_dir = root_dir_path  + root_dir
     command = [
         'rsync', '-rv',
         '-e', stringify_command(ssh_command(opts)),
         "%s" % root_dir,
-        "%s@%s:/" % (opts.user, active_master)
+        "%s@%s:/%s" % (opts.user, active_master, root_dir_path)
     ]
     subprocess.check_call(command)
 
