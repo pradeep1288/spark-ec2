@@ -11,7 +11,7 @@
 
   <property>
     <name>fs.defaultFS</name>
-    <value>nfs://{{nfs_server_address}:2049/</value>
+    <value>nfs://{{nfs_server_address}}:2049/</value>
   </property>
   <property>
     <name>fs.AbstractFileSystem.nfs.impl</name>
