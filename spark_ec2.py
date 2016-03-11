@@ -1086,7 +1086,7 @@ def deploy_files(conn, root_dir, opts, master_nodes, slave_nodes, modules):
         "hadoop_major_version": opts.hadoop_major_version,
         "spark_worker_instances": worker_instances_str,
         "spark_master_opts": opts.master_opts,
-        "nfs_server_address": opts.nfs_sever_address,
+        "nfs_server_address": opts.nfs_server_address,
         "nfs_volume_name":opts.nfs_volume_name
     }
 
