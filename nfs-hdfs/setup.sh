@@ -25,7 +25,7 @@ case "$HADOOP_MAJOR_VERSION" in
     echo "Starting YARN"
     $NFS_HDFS/sbin/start-yarn.sh
     echo "Starting history server"
-    `$NFS_HDFS/sbin/mr-jobhistory-daemon.sh start historyserver`
+    $NFS_HDFS/sbin/mr-jobhistory-daemon.sh start historyserver
     ;;
   *)
      echo "ERROR: Unknown Hadoop version"
