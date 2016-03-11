@@ -333,6 +333,9 @@ def parse_args():
     parser.add_option(
         "--nfs-volume-name", default=None,
         help="NFS Volume Name to access data")
+    parser.add_option(
+        "--persistent-hdfs", default=False,
+        help="Install persistent HDFS")
 
     (opts, args) = parser.parse_args()
     if len(args) != 2:
@@ -812,12 +815,13 @@ def setup_cluster(conn, master_nodes, slave_nodes, opts, deploy_ssh_key):
             print(slave_address)
             ssh_write(slave_address, opts, ['tar', 'x'], dot_ssh_tar)
 
-    modules = ['spark', 'ephemeral-hdfs', 'persistent-hdfs',
+    modules = ['spark', 'ephemeral-hdfs',
                'mapreduce', 'spark-standalone', 'nfs-hdfs']
 
     if opts.hadoop_major_version == "1":
         modules = list(filter(lambda x: x != "mapreduce", modules))
-
+    if opts.persistent_hdfs:
+        modules.append('persistent-hdfs');
     if opts.hadoop_major_version == "1":
         modules = list(filter(lambda x: x != "mapreduce", modules))
     if opts.ganglia:
