@@ -336,6 +336,10 @@ def parse_args():
     parser.add_option(
         "--persistent-hdfs", default=False,
         help="Install persistent HDFS")
+    parser.add_option(
+        "--rhel-ssh-user", default="root",
+        help="Specify the rhel ssh user for the first time access"
+    )
 
     (opts, args) = parser.parse_args()
     if len(args) != 2:
@@ -795,6 +799,22 @@ def get_existing_cluster(conn, opts, cluster_name, die_on_error=True):
 
     return (master_instances, slave_instances)
 
+# Copy the ssh config from the ec2-user/.ssh/authorized keys
+# to the location /root/.ssh/authorized_keys
+
+def copy_ssh_config(conn, master_nodes, slave_nodes, opts):
+    master = get_dns_name(master_nodes[0],opts.private_ips)
+    command = "sudo cp /home/ec2-user/.ssh/authorized_keys /root/.ssh/authorized_keys"
+    print (master)
+    subprocess.check_call(
+                ssh_command(opts) + ['-t', '-t', '%s@%s' % (opts.rhel_ssh_user, master),
+                                     stringify_command(command)])
+    for slave in slave_nodes:
+        slave_address = get_dns_name(slave,opts.private_ips)
+        print(slave_address)
+        subprocess.check_call(
+                ssh_command(opts) + ['-t', '-t', '%s@%s' % (opts.rhel_ssh_user, slave_address),
+                                     stringify_command(command)])
 
 # Deploy configuration files and run setup scripts on a newly launched
 # or started EC2 cluster.
@@ -880,9 +900,12 @@ def is_ssh_available(host, opts, print_ssh_output=True):
     """
     Check if SSH is available on a host.
     """
+    user = opts.user
+    if opts.rhel_ssh_user == "ec2-user":
+        user = "ec2-user"
     s = subprocess.Popen(
         ssh_command(opts) + ['-t', '-t', '-o', 'ConnectTimeout=3',
-                             '%s@%s' % (opts.user, host), stringify_command('true')],
+                             '%s@%s' % (user, host), stringify_command('true')],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT  # we pipe stderr through stdout to preserve output order
     )
@@ -1370,6 +1393,7 @@ def real_main():
             cluster_instances=(master_nodes + slave_nodes),
             cluster_state='ssh-ready'
         )
+        copy_ssh_config(conn,master_nodes,slave_nodes,opts)
         setup_cluster(conn, master_nodes, slave_nodes, opts, True)
 
     elif action == "destroy":
