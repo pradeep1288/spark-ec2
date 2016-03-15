@@ -334,7 +334,7 @@ def parse_args():
         "--nfs-volume-name", default=None,
         help="NFS Volume Name to access data")
     parser.add_option(
-        "--persistent-hdfs", default=False,
+        "--persistent-hdfs", action="store_true", default=False,
         help="Install persistent HDFS")
     parser.add_option(
         "--rhel-ssh-user", default="root",
@@ -801,7 +801,6 @@ def get_existing_cluster(conn, opts, cluster_name, die_on_error=True):
 
 # Copy the ssh config from the ec2-user/.ssh/authorized keys
 # to the location /root/.ssh/authorized_keys
-
 def copy_ssh_config(conn, master_nodes, slave_nodes, opts):
     master = get_dns_name(master_nodes[0],opts.private_ips)
     command = "sudo cp /home/ec2-user/.ssh/authorized_keys /root/.ssh/authorized_keys"
@@ -816,24 +815,19 @@ def copy_ssh_config(conn, master_nodes, slave_nodes, opts):
                 ssh_command(opts) + ['-t', '-t', '%s@%s' % (opts.rhel_ssh_user, slave_address),
                                      stringify_command(command)])
 
+# add the ssh key via ssh add so that master can copy public keys to slaves
+def ssh_add_aws_key(master_nodes, opts):
+    master = get_dns_name(master_nodes[0], opts.private_ips)
+    command = "eval `ssh-agent -s`; ssh-add /root/*.pem";
+    print ("Running {c} on master {m}".format(c=command, m=master))
+    subprocess.check_call(
+                ssh_command(opts) + ['-t', '-t', '%s@%s' % (opts.user, master),
+                                     stringify_command(command)])
+
 # Deploy configuration files and run setup scripts on a newly launched
 # or started EC2 cluster.
 def setup_cluster(conn, master_nodes, slave_nodes, opts, deploy_ssh_key):
     master = get_dns_name(master_nodes[0], opts.private_ips)
-    if deploy_ssh_key:
-        print("Generating cluster's SSH key on master...")
-        key_setup = """
-          [ -f ~/.ssh/id_rsa ] ||
-            (ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa &&
-             cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys)
-        """
-        ssh(master, opts, key_setup)
-        dot_ssh_tar = ssh_read(master, opts, ['tar', 'c', '.ssh'])
-        print("Transferring cluster's SSH key to slaves...")
-        for slave in slave_nodes:
-            slave_address = get_dns_name(slave, opts.private_ips)
-            print(slave_address)
-            ssh_write(slave_address, opts, ['tar', 'x'], dot_ssh_tar)
 
     modules = ['spark', 'ephemeral-hdfs',
                'mapreduce', 'spark-standalone', 'nfs-hdfs']
@@ -881,6 +875,24 @@ def setup_cluster(conn, master_nodes, slave_nodes, opts, deploy_ssh_key):
             opts=opts,
             master_nodes=master_nodes
         )
+        ssh_add_aws_key(master_nodes=master_nodes,
+                        opts=opts)
+
+    if deploy_ssh_key:
+        print("Generating cluster's SSH key on master...")
+        key_setup = """
+          [ -f ~/.ssh/id_rsa ] ||
+            (ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa &&
+             cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys)
+        """
+        ssh(master, opts, key_setup)
+        dot_ssh_tar = ssh_read(master, opts, ['tar', 'c', '.ssh'])
+        print("Transferring cluster's SSH key to slaves...")
+        for slave in slave_nodes:
+            slave_address = get_dns_name(slave, opts.private_ips)
+            print(slave_address)
+            ssh_write(slave_address, opts, ['tar', 'x'], dot_ssh_tar)
+
 
     print("Running setup on master...")
     setup_spark_cluster(master, opts)

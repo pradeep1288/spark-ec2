@@ -10,6 +10,9 @@ echo_time_diff () {
   echo "[timing] $1: " "$(date -u -d@"$diff_secs" +"$format")"
 }
 
+eval `ssh-agent -s`
+ssh-add /root/*.pem
+
 # Make sure we are in the spark-ec2 directory
 pushd /root/spark-ec2 > /dev/null
 
