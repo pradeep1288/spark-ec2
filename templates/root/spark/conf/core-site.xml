@@ -4,45 +4,26 @@
 <!-- Put site-specific property overrides in this file. -->
 
 <configuration>
-
-  <property>
-    <name>hadoop.tmp.dir</name>
-    <value>/mnt/ephemeral-hdfs</value>
-  </property>
-
-  <property>
-    <name>fs.default.name</name>
-    <value>hdfs://{{active_master}}:9000</value>
-  </property>
-
   <property>
     <name>io.file.buffer.size</name>
     <value>65536</value>
   </property>
 
   <property>
-    <name>dfs.client.read.shortcircuit</name>
-    <value>false</value>
+    <name>fs.defaultFS</name>
+    <value>nfs://{{nfs_server_address}}:2049/</value>
   </property>
-
   <property>
-    <name>dfs.client.read.shortcircuit.skip.checksum</name>
-    <value>false</value>
+    <name>fs.AbstractFileSystem.nfs.impl</name>
+    <value>org.apache.hadoop.fs.nfs.NFSv3AbstractFilesystem</value>
   </property>
-
   <property>
-    <name>dfs.domain.socket.path</name>
-    <value>/var/run/hadoop-hdfs/dn._PORT</value>
+    <name>fs.nfs.impl</name>
+    <value>org.apache.hadoop.fs.nfs.NFSv3FileSystem</value>
   </property>
-
   <property>
-    <name>dfs.client.file-block-storage-locations.timeout</name>
-    <value>3000</value>
-  </property>
-
-  <property>
-    <name>fs.tachyon.impl</name>
-    <value>tachyon.hadoop.TFS</value>
+    <name>fs.nfs.configuration</name>
+    <value>/root/nfs-hdfs/conf/nfs-mapping.json</value>
   </property>
 
 </configuration>
