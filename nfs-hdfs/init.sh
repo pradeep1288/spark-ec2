@@ -17,7 +17,7 @@ case "$HADOOP_MAJOR_VERSION" in
     cp /root/hadoop-native/* /root/nfs-hdfs/lib/native/
     ;;
   2)
-    wget http://apache.arvixe.com/hadoop/common/hadoop-2.7.2/hadoop-2.7.2.tar.gz
+    wget http://apache.mirrors.lucidnetworks.net/hadoop/common/hadoop-2.7.2/hadoop-2.7.2.tar.gz
     echo "Unpacking Hadoop"
     tar xvzf hadoop-*.tar.gz > /tmp/spark-ec2_hadoop.log
     rm hadoop-*.tar.gz
@@ -29,7 +29,7 @@ case "$HADOOP_MAJOR_VERSION" in
     cp /root/hadoop-native/* /root/nfs-hdfs/lib/native/
     ;;
   yarn)
-    wget http://apache.arvixe.com/hadoop/common/hadoop-2.7.2/hadoop-2.7.2.tar.gz
+    wget http://apache.mirrors.lucidnetworks.net/hadoop/common/hadoop-2.7.2/hadoop-2.7.2.tar.gz
     echo "Unpacking Hadoop"
     tar xvzf hadoop-*.tar.gz > /tmp/spark-ec2_hadoop.log
     rm hadoop-*.tar.gz
