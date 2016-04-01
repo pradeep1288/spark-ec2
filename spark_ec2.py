@@ -875,8 +875,9 @@ def setup_cluster(conn, master_nodes, slave_nodes, opts, deploy_ssh_key):
             opts=opts,
             master_nodes=master_nodes
         )
-        ssh_add_aws_key(master_nodes=master_nodes,
-                        opts=opts)
+        if opts.rhel_ssh_user == "ec2-user":
+            ssh_add_aws_key(master_nodes=master_nodes,
+                            opts=opts)
 
     if deploy_ssh_key:
         print("Generating cluster's SSH key on master...")
@@ -1405,7 +1406,8 @@ def real_main():
             cluster_instances=(master_nodes + slave_nodes),
             cluster_state='ssh-ready'
         )
-        copy_ssh_config(conn,master_nodes,slave_nodes,opts)
+        if opts.rhel_ssh_user == "ec2-user":
+            copy_ssh_config(conn,master_nodes,slave_nodes,opts)
         setup_cluster(conn, master_nodes, slave_nodes, opts, True)
 
     elif action == "destroy":
