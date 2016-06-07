@@ -20,7 +20,7 @@
 
                         "endpoints": [
                                 {
-                                        "host":"nfs://{{nfs_server_address}}:2049",
+                                        "hosts":["nfs://{{nfs_server_address}}:2049"],
                                         "path": "{{nfs_volume_name}}"
                                 }
 
